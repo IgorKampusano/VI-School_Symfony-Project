@@ -1,8 +1,8 @@
-{% include 'base.html.twig' %}
+{% extends 'base.html.twig' %}
 
 {% block body %}
     <a href="{{ path('request.list') }}">К списку</a>
-    <h1>Запрос: {{ request.title }}</h1>
+    <h1>Заявка: {{ request.title }} <a href="{{ path('request.edit', {'id': request.id}) }}" class="btn btn-primary">Редактировать</a></h1>
     <div>
         <table width="100%" class="table table-bordered">
             <tbody>
@@ -17,6 +17,10 @@
                 <tr>
                     <td>Дата создания</td>
                     <td>{{ request.createAt.format('Y.m.d H:i:s') }}</td>
+                </tr>
+                <tr>
+                    <td>Email автора заявки</td>
+                    <td></td>
                 </tr>
             </tbody>
         </table>

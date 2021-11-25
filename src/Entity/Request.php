@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\DTO\RequestDTO;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -14,7 +15,7 @@ class Request
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
-     * @ORM\Column(name="id" type="integer")
+     * @ORM\Column(name="id", type="integer")
      */
     private ?int $id;
     /**
@@ -22,7 +23,7 @@ class Request
      */
     private string $title;
     /**
-     * @ORM\Column(name="message", type="text")
+     * @ORM\Column(name="message", type="text", length=10000)
      */
     private string $message;
     /**
@@ -34,11 +35,28 @@ class Request
      */
     private DateTime $createAt;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private int $createdBy;
+
     public function __construct(string $title, string $message)
     {
         $this->title = $title;
         $this->message = $message;
         $this->createAt = new DateTime();
+    }
+
+    public static function createFromDTO(RequestDTO $dto): self
+    {
+        return new self($dto->getTitle(), $dto->getMessage());
+    }
+
+    public function updateFromDTO(RequestDTO $dto): self
+    {
+        $this->setTitle($dto->getTitle());
+        $this->setMessage($dto->getMessage());
     }
 
     public function getId(): ?int
@@ -80,4 +98,23 @@ class Request
     {
         return $this->createAt;
     }
+
+    public function setCreateAt(DateTime $dateTime): DateTime
+    {
+        $this->createAt = $dateTime;
+    }
+
+    public function getCreatedBy(): int
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(int $createdBy): void
+    {
+        $this->createdBy = $createdBy;
+    }
+
+
+
+
 }

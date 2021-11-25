@@ -2,11 +2,18 @@
 
 namespace App\Controller;
 
+use App\DTO\RequestDTO;
+use App\Entity\Request as RequestEntity;
+use App\Form\Type\RequestType;
 use App\Repository\RequestRepository;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+
 
 /**
  * @Route("/request")
@@ -14,6 +21,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class RequestController extends AbstractController
 {
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager=$entityManager;
+    }
     /**
      * @Route("/list", name="request.list")
      */
@@ -39,6 +52,57 @@ class RequestController extends AbstractController
 
         return $this->render('/request/show.html.twig', [
            'request' => $request
+        ]);
+    }
+
+    /**
+     * @Route("/add", name="request.add")
+     */
+    public function addRequestAction(Request $request): Response
+    {
+        $requestDto = new RequestDTO();
+
+        $form = $this->createForm(RequestType::class, $requestDto, [
+            'action' => $this->generateUrl('request.add')
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $requestEntity = RequestEntity::createFromDTO($requestDto);
+            $this->entityManager->persist($requestEntity);
+            $this->entityManager->flush();
+            return $this->redirectToRoute('request.show', ['id' => $requestEntity->getId()]);
+        }
+
+        return $this->renderForm('request/add.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    /**
+     * @Route("/edit/{id}", name="request.edit")
+     */
+    public function editAction(Request $request, RequestEntity $requestEntity): Response
+    {
+        $requestDto = RequestDTO::createFromEntity($requestEntity);
+
+        $form = $this->createForm(RequestType::class, $requestDto, [
+            'action' => $this->generateUrl('request.add')
+        ]);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $requestEntity->updateFromDTO($requestDto);
+//            $requestEntity = RequestEntity::createFromDTO($requestDto);
+//            $this->entityManager->persist($requestEntity);
+            $this->entityManager->flush();
+            return $this->redirectToRoute('/request/show/{id}', ['id' => $requestEntity->getId()]);
+        }
+
+        return $this->renderForm('request/add.html.twig', [
+            'form' => $form,
         ]);
     }
 }
