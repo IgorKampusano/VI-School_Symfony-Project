@@ -1,7 +1,7 @@
 version: '3'
 services:
   web:
-    container_name: vi_school_symfony_web
+    container_name: vi_school_symfony_mini_project_web
     image: nginx:latest
     volumes:
       - .:/code:cached
@@ -11,7 +11,7 @@ services:
     links:
       - php
   php:
-    container_name: vi_school_symfony_php
+    container_name: vi_school_symfony_mini_project_php
     build: .docker/php
     volumes:
       - .:/code:cached
@@ -22,7 +22,7 @@ services:
       - mysql
     working_dir: /code
   mysql:
-    container_name: vi_school_symfony_mysql
+    container_name: vi_school_symfony_mini_project_mysql
     image: mysql:5.7
     ports:
       - "15006:3306"
